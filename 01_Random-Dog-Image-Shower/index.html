@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random Dog Image</title>
+    <link
+      href="./node_modules/bootstrap/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container mt-5 d-flex justify-content-center">
+      <div class="card" style="width: 18rem">
+        <img
+          class="card-img-top"
+          alt="a cute dog"
+          style="height: 200px; object-fit: cover"
+        />
+        <div class="card-body">
+          <h5 class="card-title">A Cute Dog</h5>
+          <p class="card-text">
+            Click the image or button to get a random dog!
+          </p>
+          <a
+            href="#"
+            class="btn btn-primary"
+            onclick="getDogImage(); return false;"
+            >Random Dog</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

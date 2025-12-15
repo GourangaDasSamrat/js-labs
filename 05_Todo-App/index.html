@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Gouranga Das Samrat" />
+    <meta name="description" content="A simple todo app." />
+    <title>Todo App</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="./images/logo.webp" type="image/x-icon" />
+  </head>
+  <body>
+    <section class="container">
+      <div class="logo">
+        <img src="./images/logo.webp" alt="logo" />
+      </div>
+      <h1 id="header" class="header">To-Do App</h1>
+
+      <form class="new-task-container box">
+        <label for="new-task">Add New Task</label>
+        <input type="text" id="new-task" />
+        <input type="submit" id="addTask" value="Add Task" />
+      </form>
+
+      <div class="todo-list box">
+        <h2>Incomplete Tasks</h2>
+        <ul id="items"></ul>
+      </div>
+      <!--/todo-list-->
+
+      <div class="complete-list box">
+        <h2>Completed Tasks</h2>
+        <ul></ul>
+      </div>
+      <!--/complete-list-->
+    </section>
+    <!--/container-->
+    <script src="script.js"></script>
+  </body>
+</html>

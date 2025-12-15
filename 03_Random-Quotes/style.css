@@ -1,0 +1,44 @@
+/* custom font */
+@font-face {
+  font-family: "Anime Acc Regular";
+  src: url(./assets/fonts/animeace2_reg.ttf);
+}
+
+:root {
+  --font-main-regular: "Anime Acc Regular", sans-serif;
+  --font-main-italic: "Anime Acc Italic", sans-serif;
+  --color-primary: rgb(18, 255, 216);
+  --color-secondary: rgb(45, 118, 255);
+
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-image: url(./assets/img/bg.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* main style */
+#container {
+  color: var(--color-primary);
+  position: absolute;
+  width: 55%;
+  top: 20%;
+  right: 20%;
+}
+
+#quote {
+  font-family: var(--font-main-regular);
+  font-size: 28px;
+}
+
+#newQuoteBtn {
+  cursor: pointer;
+  outline: none;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  font-family: var(--font-main-regular);
+}

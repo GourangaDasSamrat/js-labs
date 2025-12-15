@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Currency Converter</title>
+    <link
+      rel="stylesheet"
+      href="./node_modules/bootstrap/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="m-5 d-flex justify-content-center align-items-center">
+        <label
+          for="input"
+          class="form-label me-3"
+          style="font-size: 25px; white-space: nowrap"
+        >
+          Input your amount:
+        </label>
+        <input
+          type="number"
+          id="input"
+          class="form-control"
+          style="max-width: 300px"
+        />
+      </div>
+
+      <div class="m-5 d-flex gap-3 justify-content-center flex-wrap">
+        <select id="inputCur" class="form-select" style="max-width: 250px">
+          <option value="disabled" selected disabled>Input Currency</option>
+          <option value="bdt">BDT</option>
+          <option value="usd">USD</option>
+          <option value="gbp">GBP</option>
+          <option value="eur">EUR</option>
+        </select>
+
+        <select id="outputCur" class="form-select" style="max-width: 250px">
+          <option value="disabled" selected disabled>Output Currency</option>
+          <option value="bdt">BDT</option>
+          <option value="usd">USD</option>
+          <option value="gbp">GBP</option>
+          <option value="eur">EUR</option>
+        </select>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <button class="btn btn-primary" onclick="convertCurrency()">
+          Convert
+        </button>
+      </div>
+
+      <div
+        id="result"
+        class="text-center mt-4"
+        style="display: none; font-size: 18px"
+      >
+        Converted Amount: <span id="resultAmount"></span>
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

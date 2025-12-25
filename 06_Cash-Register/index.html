@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Gouranga Das Samrat" />
+    <title>Cash Register</title>
+    <link rel="shortcut icon" href="./img/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Cash Register</h1>
+      <div class="register-form">
+        <div class="price-display">
+          <h2>Price: $<span id="price-display">0</span></h2>
+        </div>
+        <div class="input-group">
+          <label for="cash">Cash Provided:</label>
+          <input
+            type="number"
+            id="cash"
+            min="0"
+            step="0.01"
+            placeholder="Enter cash amount"
+          />
+        </div>
+        <button id="purchase-btn">Make Purchase</button>
+        <div id="change-due"></div>
+        <div class="drawer-status">
+          <h3>Cash in Drawer:</h3>
+          <div id="drawer-display"></div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

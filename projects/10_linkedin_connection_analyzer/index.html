@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinkedIn Connection Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="header-inner">
+          <div class="brand">
+            <div class="brand-icon">🔗</div>
+            <div>
+              <h1>LinkedIn Analyzer</h1>
+              <div class="subtitle">connection network visualizer</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- UPLOAD ZONE -->
+      <div id="upload-zone">
+        <input type="file" id="file-input" accept=".csv" />
+        <span class="upload-icon">📁</span>
+        <div class="upload-title">Drop the csv file or click here</div>
+        <div class="upload-desc">
+          Upload the <em>Connections.csv</em> file exported from LinkedIn
+          here.<br />
+          Settings → Data Privacy → Get a copy of your data → Connections
+        </div>
+      </div>
+
+      <!-- LOADING -->
+      <div id="loading" class="hidden">
+        <div class="loading-bar"></div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" class="hidden">
+        <!-- STATS -->
+        <div class="stats-grid" id="stats-grid"></div>
+
+        <!-- CHARTS ROW 1 -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">Type of profession</div>
+              <div class="chart-sub">role distribution</div>
+            </div>
+            <div class="legend" id="role-legend"></div>
+            <div class="chart-wrap" style="height: 220px">
+              <canvas
+                id="roleChart"
+                role="img"
+                aria-label="Distribution by profession type"
+              ></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header">
+              <div class="chart-title">Monthly connection growth</div>
+              <div class="chart-sub">growth over time</div>
+            </div>
+            <div class="chart-wrap" style="height: 260px">
+              <canvas
+                id="growthChart"
+                role="img"
+                aria-label="Monthly connection growth"
+              ></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHARTS ROW 2 - Company -->
+        <div class="chart-card chart-full">
+          <div class="chart-header">
+            <div class="chart-title">Top companies</div>
+            <div class="chart-sub">top 15 by connection count</div>
+          </div>
+          <div class="chart-wrap" id="company-wrap" style="height: 380px">
+            <canvas
+              id="companyChart"
+              role="img"
+              aria-label="Connections by company"
+            ></canvas>
+          </div>
+        </div>
+
+        <!-- TOP CONNECTIONS TABLE -->
+        <div class="table-section">
+          <div class="section-heading">Recent connections</div>
+          <div
+            style="
+              background: var(--surface);
+              border: 1px solid var(--border);
+              border-radius: 14px;
+              overflow: hidden;
+            "
+          >
+            <table class="conn-table" id="recent-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Title</th>
+                  <th>Company</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recent-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        built for software developers · drag & drop your linkedin export csv
+      </footer>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

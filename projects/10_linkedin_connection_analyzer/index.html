@@ -6,10 +6,15 @@
     <title>LinkedIn Connection Analyzer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap"
       rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -23,6 +28,14 @@
               <h1>LinkedIn Analyzer</h1>
               <div class="subtitle">connection network visualizer</div>
             </div>
+          </div>
+          <div class="page-nav hidden" id="page-nav">
+            <button class="nav-btn active" data-page="analysis">
+              <i class="fas fa-chart-line"></i> Analysis
+            </button>
+            <button class="nav-btn" data-page="connections">
+              <i class="fas fa-users"></i> Connections
+            </button>
           </div>
         </div>
       </header>
@@ -39,13 +52,29 @@
         </div>
       </div>
 
+      <!-- UPLOAD SUCCESS AREA -->
+      <div id="upload-success" class="hidden">
+        <div class="success-header">
+          <div class="success-info">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <div class="success-title">Data loaded successfully</div>
+              <div class="success-count" id="success-count"></div>
+            </div>
+          </div>
+          <button id="btn-upload-new" class="btn-primary">
+            <i class="fas fa-upload"></i> Upload New File
+          </button>
+        </div>
+      </div>
+
       <!-- LOADING -->
       <div id="loading" class="hidden">
         <div class="loading-bar"></div>
       </div>
 
-      <!-- DASHBOARD -->
-      <div id="dashboard" class="hidden">
+      <!-- ANALYSIS PAGE -->
+      <div id="analysis-page" class="page-content hidden">
         <!-- STATS -->
         <div class="stats-grid" id="stats-grid"></div>
 
@@ -94,10 +123,59 @@
             ></canvas>
           </div>
         </div>
+      </div>
 
-        <!-- TOP CONNECTIONS TABLE -->
+      <!-- CONNECTIONS PAGE -->
+      <div id="connections-page" class="page-content hidden">
         <div class="table-section">
-          <div class="section-heading">Recent connections</div>
+          <div class="section-heading">Connections</div>
+
+          <!-- CONTROLS -->
+          <div class="connections-controls">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="search-input"
+                placeholder="Search by name, position, company..."
+                class="search-input"
+              />
+            </div>
+
+            <div class="button-group">
+              <button
+                class="btn-sort active"
+                id="btn-sort-date"
+                data-sort="date"
+              >
+                <i class="fas fa-calendar"></i> By Date
+              </button>
+              <button
+                class="btn-sort"
+                id="btn-sort-company"
+                data-sort="company"
+              >
+                <i class="fas fa-building"></i> By Company
+              </button>
+              <button class="btn-sort" id="btn-sort-name" data-sort="name">
+                <i class="fas fa-user"></i> By Name
+              </button>
+            </div>
+
+            <div class="view-toggle">
+              <button
+                class="btn-view active"
+                id="btn-view-recent"
+                data-view="recent"
+              >
+                Recent (20)
+              </button>
+              <button class="btn-view" id="btn-view-all" data-view="all">
+                All
+              </button>
+            </div>
+          </div>
+
           <div
             style="
               background: var(--surface);
@@ -117,6 +195,45 @@
               </thead>
               <tbody id="recent-tbody"></tbody>
             </table>
+          </div>
+
+          <div id="no-results" class="no-results" style="display: none">
+            <i class="fas fa-search"></i>
+            <p>No connections found matching your search</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- OWNER INFO -->
+      <div class="owner-section">
+        <div class="owner-header">
+          <i class="fas fa-user-circle"></i>
+          <span>Developer</span>
+        </div>
+        <div class="owner-content">
+          <div class="owner-name">Gouranga Das Samrat</div>
+          <div class="owner-links">
+            <a
+              href="https://gouranga.eu.org"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fas fa-globe"></i> Portfolio
+            </a>
+            <a
+              href="https://github.com/GourangaDasSamrat"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fab fa-github"></i> GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/gouranga-das-samrat/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
           </div>
         </div>
       </div>

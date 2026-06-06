@@ -26,6 +26,10 @@ const BIGTECH =
   /Google|Microsoft|Amazon|Meta|Apple|Netflix|GitHub|IBM|Oracle|Salesforce|Adobe|Atlassian/i;
 
 let charts = {};
+let allConnections = [];
+let currentSortMode = "date";
+let currentViewMode = "recent";
+let currentPage = "analysis";
 
 function destroyCharts() {
   Object.values(charts).forEach((c) => {
@@ -370,24 +374,227 @@ function renderRecentTable(connections) {
     .join("");
 }
 
+function filterConnections(searchQuery) {
+  if (!searchQuery.trim()) {
+    return allConnections;
+  }
+
+  const fuse = new Fuse(allConnections, {
+    keys: ["First Name", "Last Name", "Position", "Company"],
+    threshold: 0.3,
+    minMatchCharLength: 1,
+  });
+
+  return fuse.search(searchQuery).map((result) => result.item);
+}
+
+function sortConnections(connections, sortMode) {
+  const sorted = [...connections];
+
+  switch (sortMode) {
+    case "name":
+      return sorted.sort((a, b) => {
+        const nameA = `${a["First Name"]} ${a["Last Name"]}`.toLowerCase();
+        const nameB = `${b["First Name"]} ${b["Last Name"]}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+    case "company":
+      return sorted.sort((a, b) => {
+        const compA = (a["Company"] || "").toLowerCase();
+        const compB = (b["Company"] || "").toLowerCase();
+        if (compA === compB) {
+          return `${a["First Name"]} ${a["Last Name"]}`.localeCompare(
+            `${b["First Name"]} ${b["Last Name"]}`,
+          );
+        }
+        return compA.localeCompare(compB);
+      });
+
+    case "date":
+    default:
+      return sorted.sort((a, b) => {
+        const dateA = new Date(a["Connected On"] || 0);
+        const dateB = new Date(b["Connected On"] || 0);
+        return dateB - dateA;
+      });
+  }
+}
+
+function renderConnectionsTable(connections) {
+  const tbody = document.getElementById("recent-tbody");
+  const noResults = document.getElementById("no-results");
+
+  if (connections.length === 0) {
+    tbody.innerHTML = "";
+    noResults.style.display = "flex";
+    return;
+  }
+
+  noResults.style.display = "none";
+
+  // Filter by view mode
+  let visibleConnections = connections;
+  if (currentViewMode === "recent") {
+    visibleConnections = connections.slice(0, 20);
+  }
+
+  // Sort connections
+  visibleConnections = sortConnections(visibleConnections, currentSortMode);
+
+  tbody.innerHTML = visibleConnections
+    .map((c) => {
+      const role = classifyRole(c["Position"]);
+      const badgeCls =
+        {
+          "AI / ML": "badge-yellow",
+          Manager: "badge-red",
+          Frontend: "badge-blue",
+          Backend: "badge-green",
+          "Full-stack": "badge-green",
+          DevOps: "badge-blue",
+          Data: "badge-yellow",
+          Mobile: "badge-blue",
+        }[role] || "";
+      return `<tr>
+      <td style="font-weight:600">${c["First Name"]} ${c["Last Name"]}</td>
+      <td style="color:#a09ec8;font-size:12px">${(c["Position"] || "").slice(0, 45)}${(c["Position"] || "").length > 45 ? "…" : ""}</td>
+      <td>${c["Company"] ? `<span class="badge badge-blue">${(c["Company"] || "").slice(0, 25)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${c["Connected On"] || ""}</td>
+    </tr>`;
+    })
+    .join("");
+}
+
 function processCSV(text) {
   destroyCharts();
   document.getElementById("loading").classList.remove("hidden");
-  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("analysis-page").classList.add("hidden");
+  document.getElementById("connections-page").classList.add("hidden");
 
   setTimeout(() => {
     const connections = parseConnections(text);
+    allConnections = connections;
+    currentSortMode = "date";
+    currentViewMode = "recent";
+    currentPage = "analysis";
+
     renderStats(connections);
     renderRoleChart(connections);
     renderGrowthChart(connections);
     renderCompanyChart(connections);
-    renderRecentTable(connections);
+    renderConnectionsTable(connections);
 
     document.getElementById("loading").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-    document.getElementById("upload-zone").style.marginBottom = "24px";
-    document.getElementById("upload-zone").style.padding = "24px";
+    document.getElementById("analysis-page").classList.remove("hidden");
+    document.getElementById("page-nav").classList.remove("hidden");
+
+    // Hide upload zone and show success area
+    document.getElementById("upload-zone").classList.add("hidden");
+    document.getElementById("upload-success").classList.remove("hidden");
+    document.getElementById("success-count").textContent =
+      `${connections.length} connections loaded`;
+
+    // Setup event listeners for controls
+    setupConnectionsControls();
+    setupPageNavigation();
+    setupUploadButton();
   }, 100);
+}
+
+function resetApp() {
+  destroyCharts();
+  allConnections = [];
+  currentSortMode = "date";
+  currentViewMode = "recent";
+  currentPage = "analysis";
+
+  // Show upload zone and hide success area
+  document.getElementById("upload-zone").classList.remove("hidden");
+  document.getElementById("upload-success").classList.add("hidden");
+  document.getElementById("analysis-page").classList.add("hidden");
+  document.getElementById("connections-page").classList.add("hidden");
+  document.getElementById("page-nav").classList.add("hidden");
+
+  // Reset file input
+  document.getElementById("file-input").value = "";
+}
+
+function setupUploadButton() {
+  const uploadBtn = document.getElementById("btn-upload-new");
+  if (uploadBtn) {
+    uploadBtn.addEventListener("click", () => {
+      resetApp();
+    });
+  }
+}
+
+function switchPage(pageName) {
+  // Hide all pages
+  document.getElementById("analysis-page").classList.add("hidden");
+  document.getElementById("connections-page").classList.add("hidden");
+
+  // Remove active class from all nav buttons
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach((btn) => btn.classList.remove("active"));
+
+  // Show the selected page
+  document.getElementById(`${pageName}-page`).classList.remove("hidden");
+
+  // Set the nav button as active
+  document.querySelector(`[data-page="${pageName}"]`).classList.add("active");
+
+  currentPage = pageName;
+}
+
+function setupPageNavigation() {
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const pageName = btn.dataset.page;
+      switchPage(pageName);
+    });
+  });
+}
+
+function setupConnectionsControls() {
+  // Search input
+  const searchInput = document.getElementById("search-input");
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value;
+    const filtered = filterConnections(query);
+    renderConnectionsTable(filtered);
+  });
+
+  // Sort buttons
+  document.querySelectorAll(".btn-sort").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".btn-sort")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentSortMode = btn.dataset.sort;
+
+      const query = searchInput.value;
+      const filtered = filterConnections(query);
+      renderConnectionsTable(filtered);
+    });
+  });
+
+  // View mode buttons
+  document.querySelectorAll(".btn-view").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".btn-view")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentViewMode = btn.dataset.view;
+
+      const query = searchInput.value;
+      const filtered = filterConnections(query);
+      renderConnectionsTable(filtered);
+    });
+  });
 }
 
 // ── FILE INPUT ──

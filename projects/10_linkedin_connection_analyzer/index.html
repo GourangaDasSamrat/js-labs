@@ -36,12 +36,50 @@
             <button class="nav-btn" data-page="connections">
               <i class="fas fa-users"></i> Connections
             </button>
+            <button class="nav-btn" data-page="diff">
+              <i class="fas fa-code-branch"></i> Diff
+            </button>
           </div>
         </div>
       </header>
 
+      <!-- HOME PAGE -->
+      <div id="home-page" class="page-content">
+        <div class="home-container">
+          <div class="home-header">
+            <h2>What would you like to do?</h2>
+            <p>Choose an option to get started</p>
+          </div>
+
+          <div class="home-options">
+            <div class="home-card" id="card-analysis">
+              <div class="card-icon">📊</div>
+              <div class="card-title">Single File Analysis</div>
+              <div class="card-desc">
+                Upload and analyze your LinkedIn connections with charts and
+                insights
+              </div>
+              <button class="card-button" data-mode="analysis">
+                <i class="fas fa-arrow-right"></i> Start Analysis
+              </button>
+            </div>
+
+            <div class="home-card" id="card-diff">
+              <div class="card-icon">🔀</div>
+              <div class="card-title">Compare CSV Files</div>
+              <div class="card-desc">
+                Compare two connection exports to see what changed over time
+              </div>
+              <button class="card-button" data-mode="diff">
+                <i class="fas fa-arrow-right"></i> Start Diff
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- UPLOAD ZONE -->
-      <div id="upload-zone">
+      <div id="upload-zone" class="hidden">
         <input type="file" id="file-input" accept=".csv" />
         <span class="upload-icon">📁</span>
         <div class="upload-title">Drop the csv file or click here</div>
@@ -200,6 +238,166 @@
           <div id="no-results" class="no-results" style="display: none">
             <i class="fas fa-search"></i>
             <p>No connections found matching your search</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIFF PAGE -->
+      <div id="diff-page" class="page-content hidden">
+        <div class="diff-section">
+          <div class="section-heading">CSV Diff Tool</div>
+          <div class="section-desc">
+            Compare two CSV files to analyze changes in your connections
+          </div>
+
+          <!-- DUAL UPLOAD ZONE -->
+          <div class="diff-upload-container">
+            <div class="diff-upload-zone" id="diff-upload-zone-1">
+              <input type="file" id="diff-file-1" accept=".csv" data-slot="1" />
+              <span class="upload-icon">📄</span>
+              <div class="upload-title">First CSV File</div>
+              <div class="upload-desc">
+                Select your first connections.csv (older)
+              </div>
+              <div class="file-name-display" id="file-1-name"></div>
+            </div>
+
+            <div class="diff-arrow"><i class="fas fa-arrows-alt-h"></i></div>
+
+            <div class="diff-upload-zone" id="diff-upload-zone-2">
+              <input type="file" id="diff-file-2" accept=".csv" data-slot="2" />
+              <span class="upload-icon">📄</span>
+              <div class="upload-title">Second CSV File</div>
+              <div class="upload-desc">
+                Select your second connections.csv (newer)
+              </div>
+              <div class="file-name-display" id="file-2-name"></div>
+            </div>
+          </div>
+
+          <!-- DIFF RESULTS SECTION -->
+          <div id="diff-results" class="diff-results hidden">
+            <!-- DIFF STATS -->
+            <div class="diff-stats-grid" id="diff-stats-grid"></div>
+
+            <!-- DIFF SUMMARY CHARTS -->
+            <div class="charts-row">
+              <div class="chart-card">
+                <div class="chart-header">
+                  <div class="chart-title">Changes Overview</div>
+                  <div class="chart-sub">added vs removed</div>
+                </div>
+                <div class="chart-wrap" style="height: 220px">
+                  <canvas
+                    id="diffChart"
+                    role="img"
+                    aria-label="Changes overview"
+                  ></canvas>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <div class="chart-header">
+                  <div class="chart-title">Company Changes</div>
+                  <div class="chart-sub">new vs removed companies</div>
+                </div>
+                <div class="chart-wrap" style="height: 220px">
+                  <canvas
+                    id="companyDiffChart"
+                    role="img"
+                    aria-label="Company changes"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- ADDED CONNECTIONS TABLE -->
+            <div class="table-section">
+              <div class="section-heading">
+                Added Connections
+                <span class="badge-count" id="added-count"></span>
+              </div>
+              <div
+                style="
+                  background: var(--surface);
+                  border: 1px solid var(--border);
+                  border-radius: 14px;
+                  overflow: hidden;
+                "
+              >
+                <table class="conn-table" id="added-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Title</th>
+                      <th>Company</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="added-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- REMOVED CONNECTIONS TABLE -->
+            <div class="table-section">
+              <div class="section-heading">
+                Removed Connections
+                <span class="badge-count" id="removed-count"></span>
+              </div>
+              <div
+                style="
+                  background: var(--surface);
+                  border: 1px solid var(--border);
+                  border-radius: 14px;
+                  overflow: hidden;
+                "
+              >
+                <table class="conn-table" id="removed-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Title</th>
+                      <th>Company</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="removed-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- MODIFIED CONNECTIONS TABLE -->
+            <div class="table-section">
+              <div class="section-heading">
+                Modified Connections
+                <span class="badge-count" id="modified-count"></span>
+              </div>
+              <div
+                style="
+                  background: var(--surface);
+                  border: 1px solid var(--border);
+                  border-radius: 14px;
+                  overflow: hidden;
+                "
+              >
+                <table class="conn-table" id="modified-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Old Title</th>
+                      <th>New Title</th>
+                      <th>Company</th>
+                    </tr>
+                  </thead>
+                  <tbody id="modified-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <button id="btn-reset-diff" class="btn-primary">
+              <i class="fas fa-redo"></i> Start Over
+            </button>
           </div>
         </div>
       </div>

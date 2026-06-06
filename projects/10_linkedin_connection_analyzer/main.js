@@ -30,6 +30,8 @@ let allConnections = [];
 let currentSortMode = "date";
 let currentViewMode = "recent";
 let currentPage = "analysis";
+let currentMode = null; // "analysis" or "diff"
+let diffData = { file1: null, file2: null, file1Name: "", file2Name: "" };
 
 function destroyCharts() {
   Object.values(charts).forEach((c) => {
@@ -509,12 +511,8 @@ function resetApp() {
   currentViewMode = "recent";
   currentPage = "analysis";
 
-  // Show upload zone and hide success area
-  document.getElementById("upload-zone").classList.remove("hidden");
-  document.getElementById("upload-success").classList.add("hidden");
-  document.getElementById("analysis-page").classList.add("hidden");
-  document.getElementById("connections-page").classList.add("hidden");
-  document.getElementById("page-nav").classList.add("hidden");
+  // Show home page
+  showHomePage();
 
   // Reset file input
   document.getElementById("file-input").value = "";
@@ -533,6 +531,7 @@ function switchPage(pageName) {
   // Hide all pages
   document.getElementById("analysis-page").classList.add("hidden");
   document.getElementById("connections-page").classList.add("hidden");
+  document.getElementById("diff-page").classList.add("hidden");
 
   // Remove active class from all nav buttons
   document
@@ -548,11 +547,72 @@ function switchPage(pageName) {
   currentPage = pageName;
 }
 
+function showHomePage() {
+  // Show home page
+  document.getElementById("home-page").classList.remove("hidden");
+
+  // Hide all other pages
+  document.getElementById("analysis-page").classList.add("hidden");
+  document.getElementById("connections-page").classList.add("hidden");
+  document.getElementById("diff-page").classList.add("hidden");
+  document.getElementById("upload-zone").classList.add("hidden");
+  document.getElementById("upload-success").classList.add("hidden");
+  document.getElementById("page-nav").classList.add("hidden");
+
+  currentMode = null;
+  currentPage = null;
+}
+
+function startAnalysisMode() {
+  currentMode = "analysis";
+
+  // Hide home page
+  document.getElementById("home-page").classList.add("hidden");
+
+  // Show upload zone
+  document.getElementById("upload-zone").classList.remove("hidden");
+  document.getElementById("page-nav").classList.add("hidden");
+}
+
+function startDiffMode() {
+  currentMode = "diff";
+
+  // Hide home page
+  document.getElementById("home-page").classList.add("hidden");
+
+  // Hide analysis upload zone
+  document.getElementById("upload-zone").classList.add("hidden");
+  document.getElementById("upload-success").classList.add("hidden");
+
+  // Show diff page
+  document.getElementById("diff-page").classList.remove("hidden");
+  document.getElementById("page-nav").classList.add("hidden");
+
+  // Initialize diff tool
+  initDiffTool();
+}
+
+function setupHomePageButtons() {
+  const analysisCard = document.querySelector('[data-mode="analysis"]');
+  const diffCard = document.querySelector('[data-mode="diff"]');
+
+  if (analysisCard) {
+    analysisCard.addEventListener("click", startAnalysisMode);
+  }
+
+  if (diffCard) {
+    diffCard.addEventListener("click", startDiffMode);
+  }
+}
+
 function setupPageNavigation() {
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const pageName = btn.dataset.page;
       switchPage(pageName);
+      if (pageName === "diff") {
+        initDiffTool();
+      }
     });
   });
 }
@@ -625,4 +685,422 @@ zone.addEventListener("drop", (e) => {
   const reader = new FileReader();
   reader.onload = (ev) => processCSV(ev.target.result);
   reader.readAsText(file);
+});
+
+// ── DIFF FUNCTIONALITY ──
+
+// Create unique identifier for a connection
+function getConnectionKey(conn) {
+  return `${(conn["First Name"] || "").toLowerCase()}__${(conn["Last Name"] || "").toLowerCase()}`;
+}
+
+// Compare two CSV files and identify differences
+function compareDiffFiles() {
+  if (!diffData.file1 || !diffData.file2) return null;
+
+  const connections1 = parseConnections(diffData.file1);
+  const connections2 = parseConnections(diffData.file2);
+
+  // Create maps for quick lookup
+  const map1 = {};
+  const map2 = {};
+
+  connections1.forEach((c) => {
+    map1[getConnectionKey(c)] = c;
+  });
+
+  connections2.forEach((c) => {
+    map2[getConnectionKey(c)] = c;
+  });
+
+  // Find added, removed, and modified connections
+  const added = [];
+  const removed = [];
+  const modified = [];
+
+  // Find added and modified
+  Object.entries(map2).forEach(([key, conn2]) => {
+    if (!map1[key]) {
+      added.push(conn2);
+    } else {
+      const conn1 = map1[key];
+      // Check if any field changed
+      const positionChanged = conn1["Position"] !== conn2["Position"];
+      const companyChanged = conn1["Company"] !== conn2["Company"];
+      if (positionChanged || companyChanged) {
+        modified.push({ old: conn1, new: conn2 });
+      }
+    }
+  });
+
+  // Find removed
+  Object.entries(map1).forEach(([key, conn1]) => {
+    if (!map2[key]) {
+      removed.push(conn1);
+    }
+  });
+
+  return { added, removed, modified, connections1, connections2 };
+}
+
+// Render diff statistics
+function renderDiffStats(diffResult) {
+  const { added, removed, modified, connections1, connections2 } = diffResult;
+  const total1 = connections1.length;
+  const total2 = connections2.length;
+  const netChange = total2 - total1;
+
+  const stats = [
+    {
+      label: "Total (File 1)",
+      value: total1,
+      note: "connections",
+      cls: "purple",
+    },
+    {
+      label: "Total (File 2)",
+      value: total2,
+      note: "connections",
+      cls: "green",
+    },
+    {
+      label: "Added",
+      value: added.length,
+      note: "new connections",
+      cls: "green",
+    },
+    {
+      label: "Removed",
+      value: removed.length,
+      note: "deleted connections",
+      cls: "red",
+    },
+    {
+      label: "Modified",
+      value: modified.length,
+      note: "updated profiles",
+      cls: "yellow",
+    },
+    {
+      label: "Net Change",
+      value: netChange > 0 ? `+${netChange}` : netChange,
+      note: "overall change",
+      cls: netChange > 0 ? "green" : "red",
+    },
+  ];
+
+  const grid = document.getElementById("diff-stats-grid");
+  grid.innerHTML = stats
+    .map(
+      (s) => `
+    <div class="stat-card ${s.cls}">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value ${s.cls}">${
+        typeof s.value === "number" ? s.value.toLocaleString() : s.value
+      }</div>
+      <div class="stat-note">${s.note}</div>
+    </div>
+  `,
+    )
+    .join("");
+}
+
+// Render diff chart
+function renderDiffChart(diffResult) {
+  const { added, removed, modified } = diffResult;
+
+  charts.diff = new Chart(document.getElementById("diffChart"), {
+    type: "doughnut",
+    data: {
+      labels: ["Added", "Removed", "Modified"],
+      datasets: [
+        {
+          data: [added.length, removed.length, modified.length],
+          backgroundColor: [COLORS.green, COLORS.red, COLORS.yellow],
+          borderWidth: 0,
+          hoverOffset: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true },
+        tooltip: {
+          backgroundColor: "#1c1c27",
+          borderColor: "rgba(255,255,255,0.1)",
+          borderWidth: 1,
+        },
+      },
+      cutout: "62%",
+    },
+  });
+}
+
+// Render company changes chart
+function renderCompanyDiffChart(diffResult) {
+  const { added, removed } = diffResult;
+
+  const companyAdded = {};
+  const companyRemoved = {};
+
+  added.forEach((c) => {
+    const co = (c["Company"] || "").trim();
+    if (co) companyAdded[co] = (companyAdded[co] || 0) + 1;
+  });
+
+  removed.forEach((c) => {
+    const co = (c["Company"] || "").trim();
+    if (co) companyRemoved[co] = (companyRemoved[co] || 0) + 1;
+  });
+
+  const topAdded = Object.entries(companyAdded)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const topRemoved = Object.entries(companyRemoved)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const allCompanies = new Set([...topAdded, ...topRemoved].map((c) => c[0]));
+  const labels = Array.from(allCompanies);
+
+  const addedData = labels.map((co) => companyAdded[co] || 0);
+  const removedData = labels.map((co) => companyRemoved[co] || 0);
+
+  charts.companyDiff = new Chart(document.getElementById("companyDiffChart"), {
+    type: "bar",
+    data: {
+      labels: labels.slice(0, 8),
+      datasets: [
+        {
+          label: "Added",
+          data: addedData.slice(0, 8),
+          backgroundColor: COLORS.green,
+          borderRadius: 5,
+        },
+        {
+          label: "Removed",
+          data: removedData.slice(0, 8),
+          backgroundColor: COLORS.red,
+          borderRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true },
+        tooltip: {
+          backgroundColor: "#1c1c27",
+          borderColor: "rgba(255,255,255,0.1)",
+          borderWidth: 1,
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#7b7a8e",
+            font: { size: 10 },
+            maxRotation: 45,
+          },
+          grid: { color: "rgba(255,255,255,0.04)" },
+        },
+        y: {
+          ticks: { color: "#7b7a8e", font: { size: 10 } },
+          grid: { color: "rgba(255,255,255,0.04)" },
+        },
+      },
+    },
+  });
+}
+
+// Render diff results tables
+function renderDiffResults(diffResult) {
+  const { added, removed, modified } = diffResult;
+
+  // Added table
+  const addedTbody = document.getElementById("added-tbody");
+  addedTbody.innerHTML = added
+    .map(
+      (c) => `
+    <tr>
+      <td style="font-weight:600">${c["First Name"]} ${c["Last Name"]}</td>
+      <td style="color:#a09ec8;font-size:12px">${(c["Position"] || "").slice(0, 45)}${(c["Position"] || "").length > 45 ? "…" : ""}</td>
+      <td>${c["Company"] ? `<span class="badge badge-green">${(c["Company"] || "").slice(0, 25)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${c["Connected On"] || ""}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  document.getElementById("added-count").textContent = added.length;
+
+  // Removed table
+  const removedTbody = document.getElementById("removed-tbody");
+  removedTbody.innerHTML = removed
+    .map(
+      (c) => `
+    <tr>
+      <td style="font-weight:600">${c["First Name"]} ${c["Last Name"]}</td>
+      <td style="color:#a09ec8;font-size:12px">${(c["Position"] || "").slice(0, 45)}${(c["Position"] || "").length > 45 ? "…" : ""}</td>
+      <td>${c["Company"] ? `<span class="badge badge-red">${(c["Company"] || "").slice(0, 25)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${c["Connected On"] || ""}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  document.getElementById("removed-count").textContent = removed.length;
+
+  // Modified table
+  const modifiedTbody = document.getElementById("modified-tbody");
+  modifiedTbody.innerHTML = modified
+    .map(
+      (m) => `
+    <tr>
+      <td style="font-weight:600">${m.old["First Name"]} ${m.old["Last Name"]}</td>
+      <td style="color:#a09ec8;font-size:12px">${(m.old["Position"] || "").slice(0, 40)}${(m.old["Position"] || "").length > 40 ? "…" : ""}</td>
+      <td style="color:#43e97b;font-size:12px">${(m.new["Position"] || "").slice(0, 40)}${(m.new["Position"] || "").length > 40 ? "…" : ""}</td>
+      <td>${m.new["Company"] ? `<span class="badge badge-yellow">${(m.new["Company"] || "").slice(0, 25)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  document.getElementById("modified-count").textContent = modified.length;
+}
+
+// Setup diff file inputs
+function setupDiffFileInputs() {
+  const file1Input = document.getElementById("diff-file-1");
+  const file2Input = document.getElementById("diff-file-2");
+  const zone1 = document.getElementById("diff-upload-zone-1");
+  const zone2 = document.getElementById("diff-upload-zone-2");
+
+  // File 1
+  zone1.addEventListener("click", () => file1Input.click());
+  file1Input.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      diffData.file1 = ev.target.result;
+      diffData.file1Name = file.name;
+      document.getElementById("file-1-name").textContent = file.name;
+      checkAndRunDiff();
+    };
+    reader.readAsText(file);
+  });
+
+  // File 2
+  zone2.addEventListener("click", () => file2Input.click());
+  file2Input.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      diffData.file2 = ev.target.result;
+      diffData.file2Name = file.name;
+      document.getElementById("file-2-name").textContent = file.name;
+      checkAndRunDiff();
+    };
+    reader.readAsText(file);
+  });
+
+  // Drag and drop zone 1
+  zone1.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    zone1.classList.add("drag-over");
+  });
+  zone1.addEventListener("dragleave", () =>
+    zone1.classList.remove("drag-over"),
+  );
+  zone1.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone1.classList.remove("drag-over");
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.name.endsWith(".csv")) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      diffData.file1 = ev.target.result;
+      diffData.file1Name = file.name;
+      document.getElementById("file-1-name").textContent = file.name;
+      checkAndRunDiff();
+    };
+    reader.readAsText(file);
+  });
+
+  // Drag and drop zone 2
+  zone2.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    zone2.classList.add("drag-over");
+  });
+  zone2.addEventListener("dragleave", () =>
+    zone2.classList.remove("drag-over"),
+  );
+  zone2.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone2.classList.remove("drag-over");
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.name.endsWith(".csv")) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      diffData.file2 = ev.target.result;
+      diffData.file2Name = file.name;
+      document.getElementById("file-2-name").textContent = file.name;
+      checkAndRunDiff();
+    };
+    reader.readAsText(file);
+  });
+}
+
+// Check if both files are loaded and run diff
+function checkAndRunDiff() {
+  if (diffData.file1 && diffData.file2) {
+    const diffResult = compareDiffFiles();
+    if (diffResult) {
+      destroyCharts();
+      renderDiffStats(diffResult);
+      renderDiffChart(diffResult);
+      renderCompanyDiffChart(diffResult);
+      renderDiffResults(diffResult);
+      document.getElementById("diff-results").classList.remove("hidden");
+    }
+  }
+}
+
+// Reset diff tool
+function resetDiffTool() {
+  diffData = { file1: null, file2: null, file1Name: "", file2Name: "" };
+  document.getElementById("diff-file-1").value = "";
+  document.getElementById("diff-file-2").value = "";
+  document.getElementById("file-1-name").textContent = "";
+  document.getElementById("file-2-name").textContent = "";
+  document.getElementById("diff-results").classList.add("hidden");
+  destroyCharts();
+
+  // Show home page
+  showHomePage();
+}
+
+// Setup diff reset button
+function setupDiffResetButton() {
+  const resetBtn = document.getElementById("btn-reset-diff");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => resetDiffTool());
+  }
+}
+
+// Initialize diff tool when page loads
+function initDiffTool() {
+  setupDiffFileInputs();
+  setupDiffResetButton();
+}
+
+// Initialize app on page load
+document.addEventListener("DOMContentLoaded", () => {
+  showHomePage();
+  setupHomePageButtons();
 });

@@ -23,19 +23,40 @@ A web-based tool to visualize and analyze your LinkedIn connections data with in
 
 ## How to Use
 
+### For Analysis
+
 1. Export your LinkedIn connections:
    - Go to Settings → Data Privacy → Get a copy of your data → Connections
    - Download the `Connections.csv` file
 
 2. Open the app in your browser
 
-3. Upload the CSV file by dragging and dropping or clicking the upload zone
+3. On the home page, click **"Start Analysis"**
 
-4. View your connection analytics:
+4. Upload the CSV file by dragging and dropping or clicking the upload zone
+
+5. View your connection analytics:
    - **Analysis Page**: Overview with statistics and charts
    - **Connections Page**: Browse and filter all connections
 
+### For Comparing Exports
+
+1. Export two different LinkedIn connection snapshots:
+   - First export: Your connections from a previous date
+   - Second export: Your current connections
+
+2. Open the app and click **"Start Diff"** from the home page
+
+3. Upload both CSV files to the diff tool
+
+4. View a detailed comparison showing added, removed, and unchanged connections
+
 ## Features
+
+### 🏠 Home Page
+
+- **Mode Selection**: Choose between single file analysis or CSV file comparison
+- **Quick Start**: Easy navigation cards for both workflows
 
 ### 📊 Analysis Page
 
@@ -43,6 +64,12 @@ A web-based tool to visualize and analyze your LinkedIn connections data with in
 - **Profession Distribution**: Doughnut chart showing role breakdown
 - **Growth Timeline**: Monthly connection growth visualization
 - **Top Companies**: Horizontal bar chart of your top 15 companies
+
+### 🔀 Diff Page
+
+- **Dual File Upload**: Compare two CSV exports side-by-side
+- **Change Summary**: View statistics on added, removed, and unchanged connections
+- **Detailed Comparison**: See exactly which connections are new or have changed over time
 
 ### 🔗 Connections Page
 

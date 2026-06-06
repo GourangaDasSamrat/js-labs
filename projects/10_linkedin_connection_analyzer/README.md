@@ -1,6 +1,6 @@
 # LinkedIn Connection Analyzer
 
-A web-based tool to visualize and analyze your LinkedIn connections data with interactive charts and insights.
+A web-based tool to visualize and analyze your LinkedIn connections data with interactive charts and insights. Features a two-page interface with detailed analytics and an advanced connections browser.
 
 ## What This App Does
 
@@ -10,13 +10,15 @@ A web-based tool to visualize and analyze your LinkedIn connections data with in
   - Profession distribution (Frontend, Backend, AI/ML, DevOps, etc.)
   - Monthly connection growth over time
   - Top 15 companies by connection count
-  - Recent connections table
+- **Browse**: Search and filter connections with advanced sorting options
 
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
 - **Charts**: [Chart.js](https://www.chartjs.org/) v4.4.1
 - **CSV Parsing**: [PapaParse](https://www.papaparse.com/) v5.4.1
+- **Search**: [Fuse.js](https://fusejs.io/) v7.0.0 (fuzzy search)
+- **Icons**: [Font Awesome](https://fontawesome.com/) v6.5.1
 - **Typography**: Google Fonts (DM Mono, Syne)
 
 ## How to Use
@@ -29,12 +31,88 @@ A web-based tool to visualize and analyze your LinkedIn connections data with in
 
 3. Upload the CSV file by dragging and dropping or clicking the upload zone
 
-4. View your connection analytics in the dashboard
+4. View your connection analytics:
+   - **Analysis Page**: Overview with statistics and charts
+   - **Connections Page**: Browse and filter all connections
 
 ## Features
 
+### 📊 Analysis Page
+
+- **Statistics Cards**: Total connections, Big Tech employees, Developers, AI/ML specialists
+- **Profession Distribution**: Doughnut chart showing role breakdown
+- **Growth Timeline**: Monthly connection growth visualization
+- **Top Companies**: Horizontal bar chart of your top 15 companies
+
+### 🔗 Connections Page
+
+- **Advanced Search**: Fuzzy search by name, position, or company
+- **Smart Sorting**:
+  - By Date (most recent first)
+  - By Company (alphabetical)
+  - By Name (A-Z)
+- **View Modes**:
+  - Recent (last 20 connections)
+  - All (complete connection list)
+- **Interactive Table**: Sortable connections with all details
+- **No Results Handling**: Clear message when search yields no matches
+
+### 🎨 User Experience
+
 - Dark theme with gradient UI
-- Responsive design
-- Real-time chart rendering
-- Automatic role classification based on job titles
-- Tech company highlighting
+- Responsive design for mobile and desktop
+- Smooth page transitions
+- Visual feedback on interactions
+- Upload success confirmation
+- "Upload New File" button for quick re-upload
+- Developer information section with portfolio and social links
+
+## File Structure
+
+```
+10_linkedin_connection_analyzer/
+├── index.html          # Main HTML structure with two-page layout
+├── main.js            # JavaScript logic for parsing, charts, and interactions
+├── styles.css         # Complete styling and animations
+├── README.md          # This file
+└── img/              # Assets folder
+```
+
+## Key Functions
+
+- `parseConnections()`: Parses LinkedIn CSV format
+- `renderStats()`: Displays statistics cards
+- `renderRoleChart()`: Doughnut chart of professions
+- `renderGrowthChart()`: Monthly growth bar chart
+- `renderCompanyChart()`: Top companies bar chart
+- `filterConnections()`: Fuzzy search with Fuse.js
+- `sortConnections()`: Multi-mode sorting
+- `switchPage()`: Navigation between Analysis and Connections
+- `resetApp()`: Reset and upload new file
+
+## Data Privacy
+
+- ✅ All processing happens in your browser
+- ✅ No data sent to any server
+- ✅ Your connections data remains private
+- ✅ Works completely offline after loading
+
+## Tips
+
+- Your data is processed entirely in the browser - nothing is sent to servers
+- Use the search to quickly find connections by skills or company
+- Sort by company to identify key organizations in your network
+- The role classifier recognizes 8 different profession types
+- Big Tech companies are specially highlighted
+
+## About
+
+Created by **Gouranga Das Samrat**
+
+- 🌐 [Portfolio](https://gouranga.eu.org)
+- 💻 [GitHub](https://github.com/GourangaDasSamrat)
+- 💼 [LinkedIn](https://www.linkedin.com/in/gouranga-das-samrat/)
+
+## License
+
+Licensed under the MIT License - see LICENSE file for details

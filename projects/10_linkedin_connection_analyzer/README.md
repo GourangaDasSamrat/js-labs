@@ -2,6 +2,8 @@
 
 A web-based tool to visualize and analyze your LinkedIn connections data with interactive charts and insights. Features a two-page interface with detailed analytics and an advanced connections browser.
 
+🚀 **[Live Demo](https://gourangadassamrat.github.io/js-labs/projects/10_linkedin_connection_analyzer/)**
+
 ## What This App Does
 
 - **Upload & Parse**: Import your LinkedIn Connections CSV file

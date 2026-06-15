@@ -12,18 +12,22 @@ const COLORS = {
 
 const ROLE_KEYWORDS = {
   "AI / ML":
-    /AI|Machine Learning|Artificial Intelligence|LLM|Deep Learning|Computer Vision|NLP|Data Scien/i,
-  Frontend: /Frontend|Front-end|React|Vue|Angular|UI Developer|Web Developer/i,
-  Backend: /Backend|Back-end|Node|Python Dev|Java Dev|Spring|Laravel|Django/i,
-  "Full-stack": /Full.?stack|Fullstack/i,
-  DevOps: /DevOps|SRE|Cloud Eng|Infrastructure|Platform Eng/i,
-  Mobile: /Mobile|iOS|Android|Flutter|React Native/i,
-  Data: /Data Engineer|Data Analyst|BI |Analytics/i,
-  Manager: /Manager|Director|Head of|VP |CTO|CEO|Lead|Principal|Staff/i,
+    /AI|Machine Learning|Artificial Intelligence|LLM|Deep Learning|Computer Vision|NLP|Data Scien|Prompt Engineer|AI Engineer|GenAI|Transformer|Neural|RAG|Fine.?tuning|MLOps|Researcher|AI Researcher/i,
+  Frontend: /Frontend|Front-end|React|Vue|Angular|UI Developer|Web Developer|Vue.js|Next.js|Svelte|TypeScript|WebAssembly|Performance|PWA|Accessibility|A11y|HTML|CSS/i,
+  Backend: /Backend|Back-end|Node|Python Dev|Java Dev|Spring|Laravel|Django|Rust|Go Dev|Golang|Microservices|GraphQL|REST|SQL|NoSQL|Distributed|Scalability|Database/i,
+  "Full-stack": /Full.?stack|Fullstack|MERN|MEAN|Polyglot/i,
+  DevOps: /DevOps|SRE|Cloud Eng|Infrastructure|Platform Eng|Site Reliability|Cloud Architect|Kubernetes|K8s|Docker|Terraform|CI\/CD|Infrastructure as Code/i,
+  Mobile: /Mobile|iOS|Android|Flutter|React Native|Swift|Kotlin|Xamarin|Jetpack|SwiftUI|Cross.?platform/i,
+  Data: /Data Engineer|Data Analyst|BI |Analytics|Big Data|Spark|Hadoop|ETL|Data Pipeline|Warehouse|Analytics Engineer|Data Platform/i,
+  Manager: /Manager|Director|Head of|VP |CTO|CEO|Lead|Principal|Staff|Engineering Manager|Tech Lead|Architect|VP Engineering/i,
+  Security: /Security|InfoSec|Cybersecurity|CISO|Penetration|Application Security|Vulnerability|Threat|Exploit|Compliance|GDPR|Privacy/i,
+  Product: /Product Manager|PM|Product Owner|Product Lead|CPO|Strategy|Roadmap|Requirements/i,
+  Design: /Design|Designer|UX|UI|Product Design|Design Lead|Design System|Prototyping|Wireframe|Motion|Animation|Interaction/i,
+  QA: /QA|Quality Assurance|Test|Automation Test|QA Engineer|SDET|Manual Test|Integration|Load Test|Performance Test/i,
 };
 
 const BIGTECH =
-  /Google|Microsoft|Amazon|Meta|Apple|Netflix|GitHub|IBM|Oracle|Salesforce|Adobe|Atlassian/i;
+  /Google|Microsoft|Amazon|Meta|Apple|Netflix|GitHub|IBM|Oracle|Salesforce|Adobe|Atlassian|Nvidia|OpenAI|Tesla|X Corp|Discord|Stripe|Figma|Notion|Uber|Shopify|Zoom|LinkedIn|Anthropic|Databricks|Canva|Rippling|Intel|Qualcomm|AMD|Cisco|Twilio|ServiceNow|Workday|Datadog|Elastic|HashiCorp|Okta|Vercel|Netlify|Supabase|Hugging Face|Mistral|Perplexity|Asana|Auth0|PagerDuty|Wiz|Snyk|Miro|Webflow|Broadcom|VMware|Red Hat|Canonical|Slack|Telegram|Signal|Monday|Airtable|SAP|NetSuite|HubSpot|Pipedrive|Square|Block|PayPal|Wise|Revolut|DJI|Tableau|Looker|Qlik|Alteryx|Mixpanel|Amplitude|Segment|Tealium|MongoDB|Splunk|New Relic|Dynatrace|AppDynamics|Sentry|Rollbar|Sumo Logic|Tenable|Rapid7|CrowdStrike|SentinelOne|Zscaler|Palo Alto|Fortinet|F5|Imperva|DigitalOcean|Linode|Vultr|Hetzner|Equinix|Cloudflare|Fastly|Akamai|OneLogin|Ping Identity|JFrog|GitLab|Pulumi|Checkmarx|Veracode|SonarSource|Infinispan|Consul|Memcached|Redis|RabbitMQ|Kafka|ActiveMQ|NiFi|Spark|Hadoop|Hive|Presto|Trino|Druid|ClickHouse|Timescale|InfluxDB|Prometheus|Grafana|Alertmanager|Jaeger|Zipkin|ELK Stack|Logstash|Kibana|Graylog|Loki|Prometheus|Thanos|Cortex|Loki/i;
 
 let charts = {};
 let allConnections = [];
@@ -365,6 +369,10 @@ function renderRecentTable(connections) {
           DevOps: "badge-blue",
           Data: "badge-yellow",
           Mobile: "badge-blue",
+          Security: "badge-red",
+          Product: "badge-purple",
+          Design: "badge-pink",
+          QA: "badge-teal",
         }[role] || "";
       return `<tr>
       <td style="font-weight:600">${c["First Name"]} ${c["Last Name"]}</td>
@@ -457,6 +465,10 @@ function renderConnectionsTable(connections) {
           DevOps: "badge-blue",
           Data: "badge-yellow",
           Mobile: "badge-blue",
+          Security: "badge-red",
+          Product: "badge-purple",
+          Design: "badge-pink",
+          QA: "badge-teal",
         }[role] || "";
       return `<tr>
       <td style="font-weight:600">${c["First Name"]} ${c["Last Name"]}</td>
